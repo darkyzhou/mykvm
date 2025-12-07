@@ -1,0 +1,609 @@
+@font-face {
+  font-family: 'Departure Mono';
+  src: url('/DepartureMono-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bezel-color: #e0e0d0;
+  --bezel-shadow: #b0b0a0;
+  --bezel-highlight: #ffffff;
+  --screen-bg: #111;
+  --terminal-bg: #0a1a0a;
+  --terminal-text: #33ff33;
+  --led-red-off: #500000;
+  --led-red-on: #ff0000;
+  --led-green-off: #004000;
+  --led-green-on: #00ff00;
+  --led-blue-off: #000040;
+  --led-blue-on: #4488ff;
+
+  /* Font Variables - using Departure Mono pixel font */
+  --font-main: 'Departure Mono', monospace;
+  --font-header: 'Departure Mono', monospace;
+  --font-term: 'Departure Mono', monospace;
+}
+
+#root {
+  width: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #2a2a2a;
+  background-image:
+    linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%, #222),
+    linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%, #222);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-main);
+  overflow: hidden;
+}
+
+.main-console {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+
+  /* Centering & Sizing Logic */
+  width: 100%;
+  height: auto;
+  max-width: 95vw;
+  max-height: 95vh;
+  margin: auto;
+
+  aspect-ratio: 16 / 9;
+  box-sizing: border-box;
+}
+
+/* --- Monitor Section (Left) --- */
+.monitor-unit {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-width: 0;
+  /* Allow shrinking */
+}
+
+.monitor-casing {
+  background-color: var(--bezel-color);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow:
+    inset 5px 5px 15px rgba(255, 255, 255, 0.8),
+    inset -5px -5px 15px rgba(0, 0, 0, 0.2),
+    10px 10px 30px rgba(0, 0, 0, 0.5);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 2;
+}
+
+.monitor-bezel-inner {
+  background-color: #333;
+  border-radius: 10px;
+  /* Slightly rounded inner corners */
+  padding: 20px;
+  flex-grow: 1;
+  box-shadow: inset 0 0 20px #000;
+  position: relative;
+  overflow: hidden;
+}
+
+.screen-container {
+  width: 100%;
+  height: 100%;
+  background-color: var(--screen-bg);
+  position: relative;
+  overflow: hidden;
+  border-radius: 40px / 20px;
+  outline: none;
+}
+
+.screen-container:focus {
+  cursor: none;
+}
+
+.crt-content {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  opacity: 0;
+  /* Default to off */
+  /* Transition for generic opacity changes */
+  transition: opacity 0.1s;
+}
+
+/* Power ON Animation */
+.crt-content.power-on {
+  animation: turn-on 4s linear forwards;
+}
+
+/* Power OFF Animation */
+.crt-content.power-off {
+  animation: turn-off 0.55s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes turn-on {
+  0% {
+    transform: scale(1, 0.8) translate3d(0, 0, 0);
+    filter: brightness(30);
+    opacity: 1;
+  }
+
+  3.5% {
+    transform: scale(1, 0.8) translate3d(0, 100%, 0);
+  }
+
+  3.6% {
+    transform: scale(1, 0.8) translate3d(0, -100%, 0);
+    opacity: 1;
+  }
+
+  9% {
+    transform: scale(1.3, 0.6) translate3d(0, 100%, 0);
+    filter: brightness(30);
+    opacity: 0;
+  }
+
+  11% {
+    transform: scale(1, 1) translate3d(0, 0, 0);
+    filter: contrast(0) brightness(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1, 1) translate3d(0, 0, 0);
+    filter: contrast(1) brightness(1.1) saturate(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes turn-off {
+  0% {
+    transform: scale(1, 1.3) translate3d(0, 0, 0);
+    filter: brightness(1);
+    opacity: 1;
+  }
+
+  60% {
+    transform: scale(1.3, 0.001) translate3d(0, 0, 0);
+    filter: brightness(10);
+  }
+
+  100% {
+    animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+    transform: scale(0, 0.001) translate3d(0, 0, 0);
+    filter: brightness(50);
+    opacity: 0;
+  }
+}
+
+.display-surface {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* Base filter, animation will override this during transition */
+  filter: contrast(1.1) brightness(1.1) saturate(1.1);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: block;
+}
+
+.fake-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  background: #000;
+}
+
+/* CRT Effects */
+.scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0) 50%,
+      rgba(0, 0, 0, 0.2) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0.6;
+}
+
+.screen-glare {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 20%,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.02) 20%,
+      transparent 60%);
+  pointer-events: none;
+  z-index: 11;
+  border-radius: 40px / 20px;
+}
+
+.brand-badge {
+  text-align: center;
+  margin-top: 15px;
+  font-family: var(--font-header);
+  color: #666;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+  letter-spacing: 2px;
+  font-size: 0.8em;
+}
+
+.monitor-base {
+  height: 40px;
+  width: 60%;
+  margin: 0 auto;
+  background-color: #d0d0c0;
+  border-radius: 0 0 20px 20px;
+  box-shadow:
+    inset 2px 2px 5px rgba(255, 255, 255, 0.5),
+    5px 5px 15px rgba(0, 0, 0, 0.3);
+  transform: perspective(200px) rotateX(5deg);
+  margin-top: -10px;
+  z-index: 1;
+}
+
+/* --- Control Tower (Right) --- */
+.control-tower {
+  flex: 1;
+  min-width: 200px;
+  /* Reduced from 300px to allow better scaling */
+  background-color: var(--bezel-color);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow:
+    inset 3px 3px 10px rgba(255, 255, 255, 0.6),
+    inset -3px -3px 10px rgba(0, 0, 0, 0.2),
+    10px 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.panel-group {
+  border: 2px solid #b0b0a0;
+  border-radius: 5px;
+  padding: 15px;
+  background: #dcdcdc;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.panel-label {
+  font-size: 0.7em;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #aaa;
+  padding-bottom: 5px;
+  font-family: var(--font-main);
+}
+
+/* Power Section */
+.power-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.switch-container {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.retro-btn {
+  background-color: #d4d4c8;
+  border-top: 2px solid #fff;
+  border-left: 2px solid #fff;
+  border-right: 2px solid #666;
+  border-bottom: 2px solid #666;
+  box-shadow: 1px 1px 0 #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  border-radius: 0;
+  font-family: var(--font-main);
+}
+
+.retro-btn:active,
+.retro-btn.active {
+  border-top: 2px solid #666;
+  border-left: 2px solid #666;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  background-color: #ccc;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
+  transform: translateY(1px);
+}
+
+.power-btn {
+  width: 30px;
+  height: 30px;
+}
+
+.power-btn svg {
+  width: 22px;
+  height: 22px;
+  stroke: #444;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  filter: drop-shadow(1px 1px 0 rgba(255, 255, 255, 0.6));
+  transition: stroke 0.2s;
+}
+
+.power-btn.active svg {
+  stroke: #cc0000;
+  filter: drop-shadow(0 0 5px rgba(255, 50, 50, 0.6));
+}
+
+.fullscreen-btn {
+  width: 100%;
+  padding: 6px 12px;
+  font-size: 0.8em;
+  color: #444;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.led-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.6em;
+  color: #555;
+  gap: 5px;
+  font-family: var(--font-main);
+}
+
+.led {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.led-red {
+  background-color: var(--led-red-off);
+}
+
+.led-red.on {
+  background-color: var(--led-red-on);
+  box-shadow: 0 0 8px #ff0000;
+}
+
+.led-green {
+  background-color: var(--led-green-off);
+}
+
+.led-green.on {
+  background-color: var(--led-green-on);
+  box-shadow: 0 0 8px #00ff00;
+}
+
+.led-blue {
+  background-color: var(--led-blue-off);
+}
+
+.led-blue.on {
+  background-color: var(--led-blue-on);
+  box-shadow: 0 0 8px #4488ff;
+}
+
+/* LCD Display */
+.lcd-panel {
+  font-size: 12px;
+  background-color: #7a8a70;
+  border: 4px solid #555;
+  border-radius: 4px;
+  padding: 10px;
+  font-family: var(--font-term);
+  /* Digital/Terminal font */
+  color: #222;
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.lcd-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 1.2em;
+  /* Larger digital text */
+  line-height: 1;
+}
+
+.lcd-value {
+  font-weight: bold;
+  letter-spacing: 1px;
+  opacity: 0.85;
+}
+
+/* Sliders */
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8em;
+  color: #444;
+  font-family: var(--font-main);
+}
+
+input[type=range] {
+  flex-grow: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 10px;
+  background: #666;
+  border: 1px solid #333;
+  border-radius: 2px;
+  cursor: pointer;
+  margin-top: -8px;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  background: #999;
+  border-radius: 2px;
+  border: 1px solid #777;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Terminal Log */
+.terminal-box {
+  background-color: var(--terminal-bg);
+  border: 4px solid #555;
+  border-radius: 5px;
+  flex-grow: 1;
+  padding: 10px;
+  font-family: var(--font-term);
+  font-size: 12px;
+  color: var(--terminal-text);
+  overflow-y: auto;
+  box-shadow: inset 0 0 10px rgba(0, 50, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  /* Fix height constraints */
+  height: 0;
+  min-height: 150px;
+}
+
+.log-entry {
+  margin-bottom: 2px;
+  word-break: break-all;
+}
+
+.log-entry.error {
+  color: #ff5555;
+}
+
+.log-entry.success {
+  color: #55ffff;
+}
+
+.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background-color: var(--terminal-text);
+  animation: blink 1s step-end infinite;
+  vertical-align: middle;
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Overlay for "No Signal" */
+.no-signal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-family: var(--font-term);
+  font-size: 2em;
+  text-align: center;
+  text-shadow: 0 0 5px #fff;
+  z-index: 5;
+}
+
+/* Local cursor overlay for reduced perceived latency */
+.local-cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  z-index: 100;
+  display: none;
+  will-change: transform;
+}
+
+.local-cursor svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.5));
+}
+
+.screen-container.local-cursor-active {
+  cursor: none;
+}
+
+.screen-container.local-cursor-active .local-cursor {
+  display: block;
+}
+
+/* Checkbox styling */
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75em;
+  color: #444;
+  cursor: pointer;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}

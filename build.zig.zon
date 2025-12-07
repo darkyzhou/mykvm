@@ -1,0 +1,21 @@
+.{
+    .name = .mykvm,
+    .version = "0.0.0",
+    .fingerprint = 0xbf534ca3029fb93e,
+    .minimum_zig_version = "0.15.2",
+    .dependencies = .{
+        .websocket = .{
+            .url = "https://github.com/karlseguin/websocket.zig/archive/refs/heads/master.tar.gz",
+            .hash = "websocket-0.1.0-ZPISdRNzAwAGszh62EpRtoQxu8wb1MSMVI6Ow0o2dmyJ",
+        },
+        .tls = .{
+            .url = "https://github.com/ianic/tls.zig/archive/refs/heads/zig-0.15.x.zip",
+            .hash = "tls-0.1.0-ER2e0iRoBQAUWlLfs_azUOsDWlbvYnBr_tS-rkR5Chw0",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
