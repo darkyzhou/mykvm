@@ -2,6 +2,3 @@
 	path = lib/libgpiod
 	url = https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git
 	branch = v1.6.x
-[submodule "lib/libv4l2cpp"]
-	path = lib/libv4l2cpp
-	url = https://github.com/mpromonet/libv4l2cpp.git
